@@ -50,11 +50,18 @@ async function run() {
 
     app.post("/jwt", (req, res) => {
       const user = req.body;
+  
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET,{expiresIn:"5h"})
       res.send({token})
     });
     app.post("/users", async (req, res) => {
       const user = req.body;
+      const query = {email: user.email}
+      const existingUser = await userCollection.findOne(query)
+    
+      if(existingUser){
+        return res.send({message:'user already exists'})
+      }
       const result = await userCollection.insertOne(user);
       res.send(result);
     });
@@ -84,6 +91,26 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc)
       res.send(result)
     })
+    // populer classes
+    // app.get("/popular-classes", async (req, res) => {
+    //   const pipeline = [
+    //     {
+    //       $project: {
+    //         class_name: 1,
+    //         num_students: { $size: "$students" }
+    //       }
+    //     },
+    //     {
+    //       $sort: { num_students: -1 }
+    //     },
+    //     {
+    //       $limit: 6
+    //     }
+    //   ];
+    
+    //   const result = await classesCollection.aggregate(pipeline).toArray();
+    //   res.send(result);
+    // });
     
 
 
