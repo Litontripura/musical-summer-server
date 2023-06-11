@@ -90,6 +90,12 @@ async function run() {
       const result = await classesCollection.find({}).sort({enroled: -1}).toArray()
       res.send(result)
     })
+    // short instructor route
+    app.get('/instructor', async(req, res)=>{
+     
+      const result = await userCollection.find({ role: 'instructor' }).sort({ enroled: -1 }).toArray();
+  res.send(result);
+    })
     //  make admin an user
     app.patch('/users/admin/:id', async(req, res)=>{
        const id = req.params.id;
