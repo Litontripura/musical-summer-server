@@ -54,6 +54,8 @@ async function run() {
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET,{expiresIn:"5h"})
       res.send({token})
     });
+
+    // saved users
     app.post("/users", async (req, res) => {
       const user = req.body;
       const query = {email: user.email}
@@ -77,6 +79,15 @@ async function run() {
     app.post('/classesadd', async(req, res)=>{
       const body = req.body;
       const result = await classesCollection.insertOne(body);
+      res.send(result)
+    })
+
+    // short classes rout
+
+    app.get('/classShort', async(req, res)=>{
+      const type = req.query.type == 'ascending'
+      const valu = req.query.value;
+      const result = await classesCollection.find({}).sort({enroled: -1}).toArray()
       res.send(result)
     })
     //  make admin an user
