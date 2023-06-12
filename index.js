@@ -51,7 +51,6 @@ async function run() {
 
     app.post("/jwt", (req, res) => {
       const user = req.body;
-  
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET,{expiresIn:"5h"})
       res.send({token})
     });
@@ -85,11 +84,15 @@ async function run() {
     })
 
     // get all add classes
-    app.get('/myaddclass',async(req, res)=>{
+    app.get('/myclass', verifyJWT, async(req, res)=>{
       const email = req.query.email;
       if(!email){
         res.send([])
       }
+     const decodedEmail = req.decoded.email;
+     if(email !== decodedEmail){
+       return res.status(401).send({ error: true, message: "unauthorized access" })
+     }
       const query = {email: email}
       const result = await myAddClassCollection.find(query).toArray()
       res.send(result)
@@ -115,6 +118,18 @@ async function run() {
       const result = await userCollection.find({ role: 'instructor' }).sort({ enroled: -1 }).toArray();
   res.send(result);
     })
+    // admin 
+    app.get('/user/admin/:email', verifyJWT, async(req, res)=>{
+        const email = req.params.email;
+        if(req.decoded.email !== email){
+          res.send({admin: false})
+        }
+        const query = {email : email }
+        const user = await userCollection.findOne(query)
+        const result = {admin: user?.role === 'admin'}
+        res.send(result)
+    })
+
     //  make admin an user
     app.patch('/users/admin/:id', async(req, res)=>{
        const id = req.params.id;
