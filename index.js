@@ -83,6 +83,17 @@ async function run() {
       const result = await classesCollection.insertOne(body);
       res.send(result)
     })
+
+    // get all add classes
+    app.get('/myaddclass',async(req, res)=>{
+      const email = req.query.email;
+      if(!email){
+        res.send([])
+      }
+      const query = {email: email}
+      const result = await myAddClassCollection.find(query).toArray()
+      res.send(result)
+    })
     // myAddClass
     app.post('/myaddclass', async(req,res)=>{
       const addClass = req.body;
