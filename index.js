@@ -47,6 +47,7 @@ async function run() {
     const userCollection = client.db("creativeSummer").collection("users");
     const bannerCollection = client.db("creativeSummer").collection("bannerImg");
     const classesCollection = client.db("creativeSummer").collection("classes");
+    const myAddClassCollection = client.db("creativeSummer").collection("myAddClass");
 
     app.post("/jwt", (req, res) => {
       const user = req.body;
@@ -76,9 +77,16 @@ async function run() {
       const result = await classesCollection.find().toArray();
       res.send(result);
     });
+
     app.post('/classesadd', async(req, res)=>{
       const body = req.body;
       const result = await classesCollection.insertOne(body);
+      res.send(result)
+    })
+    // myAddClass
+    app.post('/myaddclass', async(req,res)=>{
+      const addClass = req.body;
+      const result = await myAddClassCollection.insertOne(addClass)
       res.send(result)
     })
 
