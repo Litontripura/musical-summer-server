@@ -94,6 +94,18 @@ async function run() {
       const query = {email: email}
       const result = await myAddClassCollection.find(query).toArray()
       res.send(result)
+    }) 
+    
+    // instructor get class
+    app.get('/instructorAddclass', async(req, res)=>{
+      const email = req.query.email;
+      if(!email){
+        res.send([])
+      }
+    
+      const query = {email: email}
+      const result = await classesCollection.find(query).toArray()
+      res.send(result)
     })
     // myAddClass
     app.post('/myaddclass', async(req,res)=>{
@@ -101,6 +113,7 @@ async function run() {
       const result = await myAddClassCollection.insertOne(addClass)
       res.send(result)
     })
+  
 
     // short classes rout
 
@@ -125,6 +138,7 @@ async function run() {
         const result = {admin: user?.role === 'admin'}
         res.send(result)
     })
+
     app.get('/user/instructor/:email', async(req, res)=>{
         const email = req.params.email;
         
@@ -194,10 +208,11 @@ async function run() {
       res.send(result)
     })
     // delete my Add class
-    app.delete('/myaddclass/:id', async(req,res)=>{
+    app.delete('/myDeletclass/:id', async(req,res)=>{
       const id = req.params.id;
+      console.log(id);
       const query = {_id : new ObjectId(id)}
-      const result= await userCollection.deleteOne(query)
+      const result= await myAddClassCollection.deleteOne(query)
       res.send(result)
     })
     // banner section
