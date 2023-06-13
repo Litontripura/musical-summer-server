@@ -78,21 +78,19 @@ async function run() {
     });
 
     app.post('/classesadd', async(req, res)=>{
+      console.log(req.body);
       const body = req.body;
       const result = await classesCollection.insertOne(body);
       res.send(result)
     })
 
     // get all add classes
-    app.get('/myclass', verifyJWT, async(req, res)=>{
+    app.get('/myclass', async(req, res)=>{
       const email = req.query.email;
       if(!email){
         res.send([])
       }
-     const decodedEmail = req.decoded.email;
-     if(email !== decodedEmail){
-       return res.status(401).send({ error: true, message: "unauthorized access" })
-     }
+    
       const query = {email: email}
       const result = await myAddClassCollection.find(query).toArray()
       res.send(result)
@@ -119,14 +117,20 @@ async function run() {
   res.send(result);
     })
     // admin 
-    app.get('/user/admin/:email', verifyJWT, async(req, res)=>{
+    app.get('/user/admin/:email', async(req, res)=>{
         const email = req.params.email;
-        if(req.decoded.email !== email){
-          res.send({admin: false})
-        }
+     
         const query = {email : email }
         const user = await userCollection.findOne(query)
         const result = {admin: user?.role === 'admin'}
+        res.send(result)
+    })
+    app.get('/user/instructor/:email', async(req, res)=>{
+        const email = req.params.email;
+        
+        const query = {email : email }
+        const user = await userCollection.findOne(query)
+        const result = {admin: user?.role === 'instructor'}
         res.send(result)
     })
 
@@ -184,6 +188,13 @@ async function run() {
     })
     // Delete a user
     app.delete('/deletuser/:id', async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)}
+      const result= await userCollection.deleteOne(query)
+      res.send(result)
+    })
+    // delete my Add class
+    app.delete('/myaddclass/:id', async(req,res)=>{
       const id = req.params.id;
       const query = {_id : new ObjectId(id)}
       const result= await userCollection.deleteOne(query)
