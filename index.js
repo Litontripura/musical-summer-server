@@ -14,10 +14,8 @@ const verifyJWT = (req, res, next) => {
   if (!authorization) {
     return res.status(401).send({error: true, message: "unauthorized access",});
   }
-
   const token = authorization.split(' ')[1];
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+ jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if(err){
       return res.status(401).send({ error: true, message: "unauthorized access" });
     }
@@ -51,7 +49,7 @@ async function run() {
 
     app.post("/jwt", (req, res) => {
       const user = req.body;
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET,{expiresIn:"5h"})
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET,{expiresIn:"12h"})
       res.send({token})
     });
 
@@ -102,6 +100,10 @@ async function run() {
       if(!email){
         res.send([])
       }
+      // const decodedEmail = req.decoded.email;
+      // if(email !== decodedEmail){
+      //   return res.status(403).send({ error: true, message: "forbiden access" });
+      // }
     
       const query = {email: email}
       const result = await classesCollection.find(query).toArray()
@@ -129,10 +131,12 @@ async function run() {
       const result = await userCollection.find({ role: 'instructor' }).sort({ enroled: -1 }).toArray();
   res.send(result);
     })
-    // admin 
+    // check admin
     app.get('/user/admin/:email', async(req, res)=>{
         const email = req.params.email;
-     
+        // if(req.decoded.email !== email){
+        //   res.send({admin:false})
+        // }
         const query = {email : email }
         const user = await userCollection.findOne(query)
         const result = {admin: user?.role === 'admin'}
@@ -160,26 +164,40 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc)
       res.send(result)
     })
-    // populer classes
-    // app.get("/popular-classes", async (req, res) => {
-    //   const pipeline = [
-    //     {
-    //       $project: {
-    //         class_name: 1,
-    //         num_students: { $size: "$students" }
-    //       }
-    //     },
-    //     {
-    //       $sort: { num_students: -1 }
-    //     },
-    //     {
-    //       $limit: 6
-    //     }
-    //   ];
-    
-    //   const result = await classesCollection.aggregate(pipeline).toArray();
-    //   res.send(result);
-    // });
+
+    // make classes aproved 
+    app.patch('/classes/aproved/:id', async(req, res)=>{
+      const id = req.params.id;
+      const filter ={_id: new ObjectId(id)}
+      const updateDoc = {
+       $set: {
+        status: 'approved'
+       },
+     };
+     const result = await classesCollection.updateOne(filter, updateDoc)
+     res.send(result)
+   })
+
+  //  make deneid
+    app.patch('/classes/deneid/:id', async(req, res)=>{
+      const id = req.params.id;
+      const filter ={_id: new ObjectId(id)}
+      const updateDoc = {
+       $set: {
+        status: 'deneid'
+       },
+     };
+     const result = await classesCollection.updateOne(filter, updateDoc)
+     res.send(result)
+   })
+
+  //  update get 
+    app.get('/updateget/:id', async(req, res)=>{
+     const id = req.params.id;
+     const query = {_id: new ObjectId(id)};
+     const result = await classesCollection.findOne(query)
+     res.send(result)
+   })
     
 
 
