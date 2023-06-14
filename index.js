@@ -134,23 +134,27 @@ async function run() {
     // check admin
     app.get('/user/admin/:email', async(req, res)=>{
         const email = req.params.email;
-        // if(req.decoded.email !== email){
-        //   res.send({admin:false})
-        // }
         const query = {email : email }
         const user = await userCollection.findOne(query)
         const result = {admin: user?.role === 'admin'}
         res.send(result)
     })
-
+// check instructor
     app.get('/user/instructor/:email', async(req, res)=>{
         const email = req.params.email;
-        
-        const query = {email : email }
+         const query = {email : email }
         const user = await userCollection.findOne(query)
         const result = {admin: user?.role === 'instructor'}
         res.send(result)
     })
+    // check student 
+    app.get('/user/user/:email', async(req, res)=>{
+      const email = req.params.email;
+       const query = {email : email }
+      const user = await userCollection.findOne(query)
+      const result = {admin: user?.role === 'user'}
+      res.send(result)
+  })
 
     //  make admin an user
     app.patch('/users/admin/:id', async(req, res)=>{
